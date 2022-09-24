@@ -323,7 +323,9 @@ FROM   global_cases_deaths_vaccinations;
 --Create view for global data by country using inline views (subqueries from the queries writen above) 
 CREATE VIEW country_cases_deaths_vaccinations
 AS
-SELECT country_name AS Country,
+SELECT c.country_name AS Country,
+       c.continent, 
+	     c.population,
        ct.total_tests,
        ct.percentage_of_tests,
        cs.total_cases,
@@ -338,7 +340,7 @@ FROM   countries c,
        (SELECT cnt.country_name                               AS Country,
                cnt.population,
                Max(cs.total_cases)                            AS Total_cases,
-               100 * ( Max(cs.total_cases) / cnt.population ) AS Percentage_of_infections
+               ( Max(cs.total_cases) / cnt.population ) AS Percentage_of_infections
         FROM   covid_cases cs
                JOIN countries cnt
                  ON cnt.country_id = cs.country_id
@@ -347,7 +349,7 @@ FROM   countries c,
        (SELECT cnt.country_name                               AS Country,
                cnt.population,
                Max(ct.total_tests)                            AS Total_tests,
-               100 * ( Max(ct.total_tests) / cnt.population ) AS Percentage_of_tests
+                ( Max(ct.total_tests) / cnt.population ) AS Percentage_of_tests
         FROM   covid_tests ct
                JOIN countries cnt
                  ON cnt.country_id = ct.country_id
@@ -356,7 +358,7 @@ FROM   countries c,
        (SELECT cnt.country_name                                AS Country,
                cnt.population,
                Max(cd.total_deaths)                            AS Total_deaths,
-               100 * ( Max(cd.total_deaths) / cnt.population ) AS Percentage_of_deaths
+                ( Max(cd.total_deaths) / cnt.population ) AS Percentage_of_deaths
         FROM   covid_deaths cd
                JOIN countries cnt
                  ON cnt.country_id = cd.country_id
@@ -365,7 +367,7 @@ FROM   countries c,
        (SELECT cnt.country_name                                     AS Country,
                cnt.population,
                Max(cv.people_vaccinated)                            AS People_vaccinated_at_least_one_dose,
-               100 * ( Max(cv.people_vaccinated) / cnt.population ) AS Percentage_of_vaccinations
+                ( Max(cv.people_vaccinated) / cnt.population ) AS Percentage_of_vaccinations
         FROM   covid_vaccinations cv
                JOIN countries cnt
                  ON cnt.country_id = cv.country_id
@@ -374,7 +376,7 @@ FROM   countries c,
        (SELECT cnt.country_name                                           AS  Country,
                cnt.population,
                Max(cv.people_fully_vaccinated)                            AS Total_people_fully_vaccinated,
-               100 * ( Max(cv.people_fully_vaccinated) / cnt.population ) AS Percentage_people_fully_vaccinated
+              ( Max(cv.people_fully_vaccinated) / cnt.population ) AS Percentage_people_fully_vaccinated
         FROM   covid_vaccinations cv
                JOIN countries cnt
                  ON cnt.country_id = cv.country_id
